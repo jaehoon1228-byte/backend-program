@@ -1,10 +1,8 @@
 package me.jaehun.springdeveloper;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.springframework.stereotype.Service;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
@@ -16,6 +14,7 @@ public class Member {
     @Column(name="id", updatable = false)
     private  Long id;
     @Column(name="name", nullable = false)
+    @Setter(AccessLevel.PUBLIC)
     private String name;
     public Member(String name) {
         this.name = name;
