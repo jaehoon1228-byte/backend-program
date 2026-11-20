@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import me.jaehun.springdeveloper.dao.Article;
 import me.jaehun.springdeveloper.dto.ArticleCreationRequest;
 import me.jaehun.springdeveloper.dto.ArticleResponse;
+import me.jaehun.springdeveloper.dto.ArticleUpdateRequest;
 import me.jaehun.springdeveloper.service.BlogService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ import java.util.List;
 public class BlogApiController {
     private final BlogService blogService;
 
-    // 게시글 추가
+    // 게시글 등록
     @PostMapping("/api/articles")
     public ResponseEntity<Article> addArticle(@RequestBody ArticleCreationRequest articleCreationRequest) {
         // 서비스에게 블로그 글 등록을 의뢰.
@@ -49,11 +50,19 @@ public class BlogApiController {
         return ResponseEntity.ok().build();
     }
 
-    // 특정 개시글 조회
+    // 특정 게시글 조회
     @GetMapping("/api/articles/{id}")
     public ResponseEntity<ArticleResponse> getArticleById(@PathVariable Long id){
         Article article = blogService.getById(id);
         return ResponseEntity.ok().body(new ArticleResponse(article));
+    }
+
+    // 특정 게시글 변경
+    @PutMapping("/api/articles/{id}")
+    public ResponseEntity<ArticleResponse> updateArticle(@PathVariable Long id, @RequestBody ArticleUpdateRequest request){
+        Article article = blogService.updateArticle(id, request);
+        ArticleResponse articleResponse = new ArticleResponse(article);
+        return ResponseEntity.ok(articleResponse);
     }
 
 }

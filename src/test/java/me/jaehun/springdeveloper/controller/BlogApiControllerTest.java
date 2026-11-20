@@ -61,7 +61,7 @@ class BlogApiControllerTest {
         assertThat(article.getContent()).isEqualTo(content);
     }
 
-    @DisplayName("모든 블로그글 조회에 성공한다.")
+    @DisplayName("getAllArticles : 모든 블로그글 조회에 성공한다.")
     @Test
     public void getAllArticles() throws Exception{
         // 준비 given : url, 데이터
@@ -78,6 +78,65 @@ class BlogApiControllerTest {
                 .andExpect(jsonPath("$[0].title").value(title))
                 .andExpect(jsonPath("$[0].content").value(content));
 
+    }
+
+    @DisplayName("deletArticle : 블로그글 삭제에 성공한다.")
+    @Test
+    public void deleteArticle() throws Exception{
+        // 준비 given
+        String title = "JUnit 테스트를 통한 블로그글 삭제";
+        String url = "/api/articles/{id}";
+        String content = "블로그글 삭제 테스트 코드 작성";
+        Article savedArticle = blogRepository.save(Article.builder().content(content).title(title).build());
+
+        // 실행 when
+        ResultActions resultActions = mockMvc.perform(delete(url, savedArticle.getId()));
+
+        // 검증 then
+        resultActions.andExpect(status().isOk());
+        assertThat(blogRepository.findById(savedArticle.getId())).isEmpty();
+    }
+
+    @DisplayName("findArticle : 블로그글 조회에 성공한다.")
+    @Test
+    public void findArticle() throws Exception{
+        // 준비 given
+        String title = "JUnit 테스트를 통한 블로그글 조회";
+        String content = "블로그글 조회 테스트 코드 작성";
+        String url = "/api/articles/{id}";
+        Article savedArticle = blogRepository.save(Article.builder().content(content).title(title).build());
+
+        // 실행 when
+        ResultActions resultActions = mockMvc.perform(get(url, savedArticle.getId()).accept(MediaType.APPLICATION_JSON));
+
+        // 검증 then
+        resultActions.andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(title))
+                .andExpect(jsonPath("$.content").value(content));
+    }
+
+    @DisplayName("updateArticle : 블로그글 수정에 성공한다.")
+    @Test
+    public void updateArticle() throws Exception{
+        // 준비 given
+        String title = "JUnit 테스트를 통한 블로그글 수정";
+        String content = "블로그글 수정 테스트 코드 작성";
+        String url = "/api/articles/{id}";
+        String newTitle = "수정된 블로그글 제목";
+        String newContent = "수정된 블로그글 내용";
+        ArticleCreationRequest req = new ArticleCreationRequest(newTitle, newContent);
+        String articleStr = objectMapper.writeValueAsString(req);
+        Article savedArticle = blogRepository.save(Article.builder().content(content).title(title).build());
+
+        // 실행 when
+        ResultActions resultActions =
+                mockMvc.perform(put(url, savedArticle.getId()).contentType(MediaType.APPLICATION_JSON).content(articleStr));
+
+        // 검증 then
+        resultActions.andExpect(status().isOk());
+        Article updatedArticle = blogRepository.findById(savedArticle.getId()).get();
+        assertThat(updatedArticle.getTitle()).isEqualTo(newTitle);
+        assertThat(updatedArticle.getContent()).isEqualTo(newContent);
     }
 
 }
